@@ -13,11 +13,7 @@ class ArrayTest {
 
     @Test
     public void testCreateBooleanArray() {
-        final Array<Boolean> array = ArrayFactory.generate(Boolean.class, SPECIFIC_ARRAY_SIZE);
-
-        final Class<? extends Array> observedArrayClass = array.getClass();
-
-        assertEquals(BooleanArray.class, observedArrayClass);
+        testCreateSpecificArray(Boolean.class, BooleanArray.class);
     }
     @Test
     public void testCreateDefaultArray() {
@@ -25,11 +21,15 @@ class ArrayTest {
         testCreateDefaultArray(boolean.class);
     }
 
-    private <T> void testCreateDefaultArray(Class<T> arrayType) {
-        final Array<?> array = ArrayFactory.generate(Integer.class, SPECIFIC_ARRAY_SIZE);
+    private <T> void testCreateDefaultArray(final Class<T> arrayComponentType) {
+        testCreateSpecificArray(arrayComponentType, DefaultArray.class);
+    }
 
-        final Class<? extends Array> observedArrayClass = array.getClass();
+    private <T, A extends Array> void testCreateSpecificArray(final Class<T> arrayComponentType, final Class<A> expectedArrayType) {
+        final Array<?> array = ArrayFactory.generate(arrayComponentType, SPECIFIC_ARRAY_SIZE);
 
-        assertEquals(DefaultArray.class, observedArrayClass);
+        final Class<? extends Array> observedArrayType = array.getClass();
+
+        assertEquals(expectedArrayType, observedArrayType);
     }
 }

@@ -4,7 +4,7 @@ Type Specializer makes it easy for specific implementations (subclasses)
 to be returned under a declared type (the superclass) depending on the type parameters
 the factory method is provided.
 
-#How to Use
+##How to Use
 
 In order to get specific implementation `I` under the declared type `A`,
 where `I` extends `A`, assuming:
@@ -21,7 +21,7 @@ where `I` extends `A`, assuming:
 
 `A<T...> specificImplementation = F.FM(CT...);`
 
-#Upcoming Additions
+##Upcoming Additions
 
 Automatically fetching specialized type based on subclass declarations.</li>
 

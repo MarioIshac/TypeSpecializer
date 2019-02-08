@@ -37,6 +37,13 @@ public class TypeSpecializationProcessor extends AbstractProcessor {
         return SourceVersion.RELEASE_10;
     }
 
+    /**
+     * Prints an error through the {@link Messager}.
+     *
+     * @param element The element that serves as the context of the error.
+     * @param message The message of the error, with placeholders for arguments.
+     * @param formatArguments The arguments to the placeholders of {@code message}.
+     */
     private void error(final Element element, String message, final Object... formatArguments) {
         final Messager messager = processingEnv.getMessager();
 
@@ -45,6 +52,9 @@ public class TypeSpecializationProcessor extends AbstractProcessor {
         messager.printMessage(Diagnostic.Kind.ERROR, message, element);
     }
 
+    /**
+     * @return the type mirror that results from running {@code exceptionTriggerer}.
+     */
     private static TypeMirror getClassTypeMirror(Runnable exceptionTriggerer) {
         try {
             exceptionTriggerer.run();
@@ -56,23 +66,24 @@ public class TypeSpecializationProcessor extends AbstractProcessor {
         throw new RuntimeException("Type Mirror could not be fetched");
     }
 
-   private static List<? extends TypeMirror> getClassTypeMirrors(Runnable exceptionTriggerer) {
-        try {
-            exceptionTriggerer.run();
-        }
-        catch (final MirroredTypesException e) {
-            return e.getTypeMirrors();
-        }
+    /**
+     * @return the type mirrors that results from running {@code exceptionTriggerer}.
+     */
+    private static List<? extends TypeMirror> getClassTypeMirrors(Runnable exceptionTriggerer) {
+         try {
+             exceptionTriggerer.run();
+         }
+         catch (final MirroredTypesException e) {
+             return e.getTypeMirrors();
+         }
 
-       throw new RuntimeException("Type Mirror could not be fetched");
+        throw new RuntimeException("Type Mirror could not be fetched");
 
-   }
+    }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         Set<? extends Element> elementSet = roundEnv.getElementsAnnotatedWith(GenerateClass.class);
-
-        System.out.println("Annotated elements " + elementSet);
 
         for (Element element : elementSet) {
             final boolean processResult = processElement(element);
@@ -94,7 +105,6 @@ public class TypeSpecializationProcessor extends AbstractProcessor {
 
     private boolean processElement(final Element element) {
         final TypeElement abstractType = (TypeElement) element;
-        final TypeMirror abstractTypeMirror = abstractType.asType();
 
         final List<? extends Element> abstractTypeMemberElements = abstractType.getEnclosedElements();
 
@@ -123,8 +133,6 @@ public class TypeSpecializationProcessor extends AbstractProcessor {
         );
 
        final TypeMirror defaultImplementation = getClassTypeMirror(generateClass::defaultImplementation);
-
-        System.out.println("Annotated type elements " + abstractTypeMemberElements);
 
         final String factoryMethodName = generateClass.factoryMethodName();
 
@@ -277,8 +285,6 @@ public class TypeSpecializationProcessor extends AbstractProcessor {
                 .build();
 
         javaFile.writeTo(filer);
-
-        System.out.println("GENERATED CLASS");
     }
 
     private static class ExtractedSpecialization {
@@ -297,11 +303,6 @@ public class TypeSpecializationProcessor extends AbstractProcessor {
         TypeMirror getImplementation() {
             return implementation;
         }
-    }
-
-    @SafeVarargs
-    private static List<TypeName> getExceptionTypeNames(Class<? extends Exception>... exceptionClasses) {
-        return Arrays.stream(exceptionClasses).map(TypeName::get).collect(Collectors.toList());
     }
 
     private MethodSpec newFactoryMethod(
@@ -405,8 +406,6 @@ public class TypeSpecializationProcessor extends AbstractProcessor {
                     abstractType,
                     specializationArgumentArray
             );
-
-            System.out.println("Required super class " + requiredSuperClass);
 
             boolean isSuperType = typeUtils().isAssignable(
                     extractedSpecialization.getImplementation(),
